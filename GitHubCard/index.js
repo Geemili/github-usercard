@@ -20,6 +20,7 @@ axios.get('https://api.github.com/users/Geemili')
     .then(response => {
         const card = createCard(response.data);
         document.querySelector(".cards").appendChild(card);
+        new GitHubCalendar(`#${card.id} .calendar`, response.data.login, {responsive: true});
     });
 
 /* Step 5: Now that you have your own card getting added to the DOM, either 
@@ -36,6 +37,7 @@ axios.get('https://api.github.com/users/Geemili/followers').then(response => {
     response.data.forEach(follower => {
         const card = createCard(follower);
         document.querySelector(".cards").appendChild(card);
+        new GitHubCalendar(`#${card.id} .calendar`, follower.login, {responsive: true});
     });
 });
 
@@ -60,20 +62,26 @@ axios.get('https://api.github.com/users/Geemili/followers').then(response => {
 */
 
 function createCard(data) {
+    const id = `card-${data.login}`;
     return div("card", [
-        img(data.avatar_url),
-        div("carg-info", [
-            h3(data.name).className("name"),
-            p(data.login).className("username"),
-            p(`Location: ${data.location}`),
-            p(`Profile: `).children([
-                a(data.html_url, data.html_url),
+        div("av-bio", [
+            img(data.avatar_url),
+            div("card-info", [
+                h3(data.name).className("name"),
+                p(data.login).className("username"),
+                p(`Location: ${data.location}`),
+                p(`Profile: `).children([
+                    a(data.html_url, data.html_url),
+                ]),
+                p(`Followers: ${data.followers}`),
+                p(`Following: ${data.following}`),
+                p(`Bio: ${data.bio}`),
             ]),
-            p(`Followers: ${data.followers}`),
-            p(`Following: ${data.following}`),
-            p(`Bio: ${data.bio}`),
         ]),
-    ]).done();
+        div("calendar"),
+    ])
+    .attr("id", id)
+    .done();
 }
 
 /* List of LS Instructors Github username's: 
