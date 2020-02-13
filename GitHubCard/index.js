@@ -3,9 +3,11 @@
            https://api.github.com/users/<your name>
 */
 
+
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
-   data in order to use it to build your component function 
+   data in order to use it to build your component function
+
 
    Skip to Step 3.
 */
@@ -13,6 +15,21 @@
 /* Step 4: Pass the data received from Github into your function, 
            create a new component and add it to the DOM as a child of .cards
 */
+
+let AXIOS_GITHUB_CONF = {};
+if (GITHUB_USERNAME !== undefined && GITHUB_USERNAME !== undefined) {
+    AXIOS_GITHUB_CONF["auth"] = {
+        username: GITHUB_USERNAME,
+        password: GITHUB_PASSWORD,
+    };
+}
+
+axios.get('https://api.github.com/users/Geemili', AXIOS_GITHUB_CONF)
+    .then(response => {
+        const card = createCard(response.data);
+        document.querySelector(".cards").appendChild(card);
+        new GitHubCalendar(`#${card.id} .calendar`, response.data.login, {responsive: true});
+    });
 
 /* Step 5: Now that you have your own card getting added to the DOM, either 
           follow this link in your browser https://api.github.com/users/<Your github name>/followers 
@@ -24,7 +41,15 @@
           user, and adding that card to the DOM.
 */
 
-const followersArray = [];
+axios.get('https://api.github.com/users/Geemili/followers', AXIOS_GITHUB_CONF).then(response => {
+    response.data.forEach(follower => {
+        axios.get(`https://api.github.com/users/${follower.login}`, AXIOS_GITHUB_CONF).then(response => {
+            const card = createCard(response.data);
+            document.querySelector(".cards").appendChild(card);
+            new GitHubCalendar(`#${card.id} .calendar`, response.data.login, {responsive: true});
+        });
+    });
+});
 
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
@@ -45,6 +70,29 @@ const followersArray = [];
 </div>
 
 */
+
+function createCard(data) {
+    const id = `card-${data.login}`;
+    return div("card", [
+        div("av-bio", [
+            img(data.avatar_url),
+            div("card-info", [
+                h3(data.name).className("name"),
+                p(data.login).className("username"),
+                p(`Location: ${data.location}`),
+                p(`Profile: `).children([
+                    a(data.html_url, data.html_url),
+                ]),
+                p(`Followers: ${data.followers}`),
+                p(`Following: ${data.following}`),
+                p(`Bio: ${data.bio}`),
+            ]),
+        ]),
+        div("calendar"),
+    ])
+    .attr("id", id)
+    .done();
+}
 
 /* List of LS Instructors Github username's: 
   tetondan
