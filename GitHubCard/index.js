@@ -3,9 +3,11 @@
            https://api.github.com/users/<your name>
 */
 
+
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
-   data in order to use it to build your component function 
+   data in order to use it to build your component function
+
 
    Skip to Step 3.
 */
@@ -13,6 +15,12 @@
 /* Step 4: Pass the data received from Github into your function, 
            create a new component and add it to the DOM as a child of .cards
 */
+
+axios.get('https://api.github.com/users/Geemili')
+    .then(response => {
+        const card = createCard(response.data);
+        document.querySelector(".cards").appendChild(card);
+    });
 
 /* Step 5: Now that you have your own card getting added to the DOM, either 
           follow this link in your browser https://api.github.com/users/<Your github name>/followers 
@@ -45,6 +53,23 @@ const followersArray = [];
 </div>
 
 */
+
+function createCard(data) {
+    return div("card", [
+        img(data.avatar_url),
+        div("carg-info", [
+            h3(data.name).className("name"),
+            p(data.login).className("username"),
+            p(`Location: ${data.location}`),
+            p(`Profile: `).children([
+                a(data.html_url, data.html_url),
+            ]),
+            p(`Followers: ${data.followers}`),
+            p(`Following: ${data.following}`),
+            p(`Bio: ${data.bio}`),
+        ]),
+    ]).done();
+}
 
 /* List of LS Instructors Github username's: 
   tetondan
