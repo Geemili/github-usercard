@@ -16,7 +16,15 @@
            create a new component and add it to the DOM as a child of .cards
 */
 
-axios.get('https://api.github.com/users/Geemili')
+let AXIOS_GITHUB_CONF = {};
+if (GITHUB_USERNAME !== undefined && GITHUB_USERNAME !== undefined) {
+    AXIOS_GITHUB_CONF["auth"] = {
+        username: GITHUB_USERNAME,
+        password: GITHUB_PASSWORD,
+    };
+}
+
+axios.get('https://api.github.com/users/Geemili', AXIOS_GITHUB_CONF)
     .then(response => {
         const card = createCard(response.data);
         document.querySelector(".cards").appendChild(card);
@@ -33,11 +41,13 @@ axios.get('https://api.github.com/users/Geemili')
           user, and adding that card to the DOM.
 */
 
-axios.get('https://api.github.com/users/Geemili/followers').then(response => {
+axios.get('https://api.github.com/users/Geemili/followers', AXIOS_GITHUB_CONF).then(response => {
     response.data.forEach(follower => {
-        const card = createCard(follower);
-        document.querySelector(".cards").appendChild(card);
-        new GitHubCalendar(`#${card.id} .calendar`, follower.login, {responsive: true});
+        axios.get(`https://api.github.com/users/${follower.login}`, AXIOS_GITHUB_CONF).then(response => {
+            const card = createCard(response.data);
+            document.querySelector(".cards").appendChild(card);
+            new GitHubCalendar(`#${card.id} .calendar`, response.data.login, {responsive: true});
+        });
     });
 });
 
